@@ -1,0 +1,86 @@
+[
+  {
+    "id": "MF-2024-001",
+    "title": "Axis Bluechip Redemption",
+    "pdfUrl": "/mock-forms/form-1.pdf",
+    "submittedAt": "2026-02-01T10:30:00.000Z",
+    "fields": {
+      "folio": "AXIS-009184",
+      "pan": "ABCDE1234F",
+      "bank": "HDFC Bank",
+      "amount": "85000",
+      "scheme": "Axis Bluechip Fund - Direct Growth",
+      "units": "120.45",
+      "ifsc": "HDFC0000421",
+      "accountNumber": "50201123456789",
+      "email": "rahul.sharma@example.com",
+      "mobile": "9876543210",
+      "address": "34, Green Park, Bengaluru",
+      "nominee": "Ritu Sharma",
+      "redemptionMode": "NEFT"
+    }
+  },
+  {
+    "id": "MF-2024-002",
+    "title": "SBI Small Cap Redemption",
+    "pdfUrl": "/mock-forms/form-2.pdf",
+    "submittedAt": "2026-02-03T15:10:00.000Z",
+    "fields": {
+      "folio": "SBI-552901",
+      "pan": "PQRST6789K",
+      "bank": "ICICI Bank",
+      "amount": "175000",
+      "scheme": "SBI Small Cap Fund - Regular Growth",
+      "units": "95.00",
+      "ifsc": "ICIC0001892",
+      "accountNumber": "154003009812",
+      "email": "meera.nair@example.com",
+      "mobile": "9123456780",
+      "address": "18, Marine Drive, Kochi",
+      "nominee": "Vikas Nair",
+      "redemptionMode": "RTGS"
+    }
+  },
+  {
+    "id": "MF-2024-003",
+    "title": "HDFC Balanced Advantage",
+    "pdfUrl": "/mock-forms/form-3.pdf",
+    "submittedAt": "2026-02-05T09:45:00.000Z",
+    "fields": {
+      "folio": "HDFC-443219",
+      "pan": "LMNOP2468Z",
+      "bank": "State Bank of India",
+      "amount": "64000",
+      "scheme": "HDFC Balanced Advantage - Direct Growth",
+      "units": "210.10",
+      "ifsc": "SBIN0001029",
+      "accountNumber": "35678901234",
+      "email": "aakash.verma@example.com",
+      "mobile": "9988776655",
+      "address": "21, Sector 15, Noida",
+      "nominee": "Aditi Verma",
+      "redemptionMode": "NEFT"
+    }
+  },
+  {
+    "id": "MF-2024-004",
+    "title": "Mirae Asset Large Cap",
+    "pdfUrl": "/mock-forms/form-4.pdf",
+    "submittedAt": "2026-02-07T13:20:00.000Z",
+    "fields": {
+      "folio": "MIRA-778120",
+      "pan": "UVWXY1357L",
+      "bank": "Kotak Mahindra Bank",
+      "amount": "99000",
+      "scheme": "Mirae Asset Large Cap - Direct Growth",
+      "units": "134.80",
+      "ifsc": "KKBK0000269",
+      "accountNumber": "992211004455",
+      "email": "sameer.khan@example.com",
+      "mobile": "9090909090",
+      "address": "55, Jubilee Hills, Hyderabad",
+      "nominee": "Saima Khan",
+      "redemptionMode": "NEFT"
+    }
+  }
+]
