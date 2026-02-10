@@ -1,7 +1,13 @@
 import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 
-import { FOLIO_TO_BANKS, PAN_KYC_STATUS, BANKS } from "@/lib/adk/mock-data";
+import {
+  FOLIO_TO_BANKS,
+  PAN_KYC_STATUS,
+  BANKS,
+  SCHEMES,
+  BANK_IFSC,
+} from "@/lib/adk/mock-data";
 import {
   isHighValueAmount,
   isValidAccountNumber,
@@ -60,6 +66,36 @@ const setFieldNudge = (
 const resolveSeverity = (valid: boolean, hasValue: boolean): NudgeSeverity => {
   if (!hasValue) return "unknown";
   return valid ? "good" : "bad";
+};
+
+const setSchemeOptions = (
+  toolContext:
+    | {
+        state: {
+          get: (key: string, value: unknown) => unknown;
+          set: (key: string, value: unknown) => void;
+        };
+      }
+    | undefined,
+  schemes: string[],
+) => {
+  if (!toolContext) return;
+  toolContext.state.set("schemeOptions", schemes);
+};
+
+const setIfscSuggestions = (
+  toolContext:
+    | {
+        state: {
+          get: (key: string, value: unknown) => unknown;
+          set: (key: string, value: unknown) => void;
+        };
+      }
+    | undefined,
+  suggestions: string[],
+) => {
+  if (!toolContext) return;
+  toolContext.state.set("ifscSuggestions", suggestions);
 };
 
 export const lookupFolioBanksTool = new FunctionTool({
@@ -178,13 +214,20 @@ export const validateIfscTool = new FunctionTool({
       valid,
       message: valid ? "IFSC looks valid." : "IFSC appears invalid.",
     });
+    const suggestions = (toolContext?.state.get("ifscSuggestions", []) as string[]) || [];
     setFieldNudge(toolContext, "ifsc", {
-      severity: resolveSeverity(valid, hasValue),
+      severity: hasValue
+        ? resolveSeverity(valid, hasValue)
+        : suggestions.length > 0
+          ? "unknown"
+          : "unknown",
       message: hasValue
         ? valid
           ? "IFSC verified."
           : "IFSC invalid."
-        : "Awaiting IFSC.",
+        : suggestions.length > 0
+          ? `Suggested IFSC: ${suggestions[0]}`
+          : "Awaiting IFSC.",
     });
     return { ifsc, valid };
   },
@@ -255,9 +298,65 @@ export const checkPanKycTool = new FunctionTool({
   },
 });
 
+export const getSchemeNamesTool = new FunctionTool({
+  name: "get_scheme_names",
+  description: "Fetch available scheme names for redemption from the database.",
+  parameters: z.object({
+    scheme: z.string().optional().describe("Scheme name entered by the user"),
+  }),
+  execute: async ({ scheme }, toolContext) => {
+    const list = SCHEMES;
+    setSchemeOptions(toolContext, list);
+    const cleaned = (scheme ?? "").trim();
+    const hasValue = cleaned.length > 0;
+    const valid = hasValue ? list.includes(cleaned) : false;
+    if (hasValue) {
+      mergeValidation(toolContext, "scheme", {
+        valid,
+        message: valid ? "Scheme verified." : "Scheme not found.",
+      });
+      setFieldNudge(toolContext, "scheme", {
+        severity: resolveSeverity(valid, hasValue),
+        message: valid ? "Scheme verified." : "Scheme not found.",
+      });
+    } else {
+      setFieldNudge(toolContext, "scheme", {
+        severity: "unknown",
+        message: "Select a scheme.",
+      });
+    }
+    return { schemes: list };
+  },
+});
+
+export const fetchIfscByBankTool = new FunctionTool({
+  name: "fetch_ifsc_by_bank",
+  description:
+    "Fetch IFSC code from an external service using the provided bank name.",
+  parameters: z.object({
+    bank: z.string().describe("Bank name"),
+  }),
+  execute: async ({ bank }, toolContext) => {
+    const cleaned = bank.trim();
+    const ifsc = BANK_IFSC[cleaned];
+    const suggestions = ifsc ? [ifsc] : [];
+    setIfscSuggestions(toolContext, suggestions);
+    setFieldNudge(toolContext, "ifsc", {
+      severity: suggestions.length > 0 ? "unknown" : "bad",
+      message:
+        suggestions.length > 0
+          ? `Suggested IFSC: ${suggestions[0]}`
+          : "Unable to fetch IFSC for bank.",
+    });
+    return { bank: cleaned, ifscSuggestions: suggestions };
+  },
+});
+
 export const tools = [
+  getSchemeNamesTool,
   lookupFolioBanksTool,
   validateBankTool,
+  fetchIfscByBankTool,
   validateAmountTool,
   validateIfscTool,
   validateAccountTool,

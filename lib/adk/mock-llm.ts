@@ -1,18 +1,22 @@
 import { BaseLlm, LLMRegistry } from "@google/adk";
-import type { Content } from "@google/genai";
+import type { BaseLlmConnection, LlmRequest, LlmResponse } from "@google/adk";
 
 export class MockLlm extends BaseLlm {
   static supportedModels = ["mock"];
 
   async *generateContentAsync(
-    llmRequest: { contents: Content[] },
+    llmRequest: LlmRequest,
     _stream = false,
-  ): AsyncGenerator<{ content?: Content; errorMessage?: string }> {
+  ): AsyncGenerator<LlmResponse, void> {
+    void _stream;
     const lastUser = [...(llmRequest.contents ?? [])]
       .reverse()
       .find((content) => content.role === "user");
     const userText =
-      lastUser?.parts?.map((part) => part.text ?? "").join("").trim() || "";
+      lastUser?.parts
+        ?.map((part: { text?: string }) => part.text ?? "")
+        .join("")
+        .trim() || "";
 
     const text = userText
       ? `Mock LLM active. Received: ${userText}`
@@ -23,6 +27,25 @@ export class MockLlm extends BaseLlm {
         role: "model",
         parts: [{ text }],
       },
+    };
+  }
+
+  async connect(_llmRequest: LlmRequest): Promise<BaseLlmConnection> {
+    void _llmRequest;
+    return {
+      async sendHistory(_history: Parameters<BaseLlmConnection["sendHistory"]>[0]) {
+        void _history;
+      },
+      async sendContent(_content: Parameters<BaseLlmConnection["sendContent"]>[0]) {
+        void _content;
+      },
+      async sendRealtime(
+        _blob: Parameters<BaseLlmConnection["sendRealtime"]>[0],
+      ) {
+        void _blob;
+      },
+      async *receive(): AsyncGenerator<LlmResponse, void, void> {},
+      async close() {},
     };
   }
 }

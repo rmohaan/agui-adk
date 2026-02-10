@@ -3,7 +3,7 @@ import type { FormFieldKey } from "./types";
 export type FieldDefinition = {
   key: FormFieldKey;
   label: string;
-  type: "text" | "number" | "email" | "tel";
+  type: "text" | "number" | "email" | "tel" | "select";
   placeholder?: string;
 };
 
@@ -12,7 +12,7 @@ export const FORM_FIELDS: FieldDefinition[] = [
   { key: "pan", label: "PAN", type: "text" },
   { key: "bank", label: "Bank Name", type: "text" },
   { key: "amount", label: "Redemption Amount", type: "number" },
-  { key: "scheme", label: "Scheme", type: "text" },
+  { key: "scheme", label: "Scheme", type: "select" },
   { key: "units", label: "Units", type: "number" },
   { key: "ifsc", label: "IFSC Code", type: "text" },
   { key: "accountNumber", label: "Account Number", type: "text" },

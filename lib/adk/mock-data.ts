@@ -20,3 +20,21 @@ export const PAN_KYC_STATUS: Record<string, "KYC_OK" | "KYC_REQUIRED"> = {
   LMNOP2468Z: "KYC_OK",
   UVWXY1357L: "KYC_OK",
 };
+
+export const SCHEMES = [
+  "Axis Bluechip Fund - Direct Growth",
+  "SBI Small Cap Fund - Regular Growth",
+  "HDFC Balanced Advantage - Direct Growth",
+  "Mirae Asset Large Cap - Direct Growth",
+  "ICICI Prudential Balanced Advantage - Direct Growth",
+  "Nippon India Small Cap Fund - Direct Growth",
+];
+
+export const BANK_IFSC: Record<string, string> = {
+  "HDFC Bank": "HDFC0000421",
+  "ICICI Bank": "ICIC0001892",
+  "State Bank of India": "SBIN0001029",
+  "Axis Bank": "UTIB0000007",
+  "Kotak Mahindra Bank": "KKBK0000269",
+  "Yes Bank": "YESB0000175",
+};

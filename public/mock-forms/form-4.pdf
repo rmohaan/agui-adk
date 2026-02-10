@@ -2,8 +2,24 @@
 1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
 2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
 3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj
-4 0 obj << /Length 60 >> stream
-BT /F1 22 Tf 72 720 Td (Mutual Fund Redemption Form 4) Tj ET
+4 0 obj << /Length 894 >> stream
+BT /F1 12 Tf 72 740 Td
+(CAMS Mutual Fund Redemption Request (Sample)) Tj
+0 -16 Td (Investor Name: ____________________________) Tj
+0 -16 Td (Folio No.: _________________________________) Tj
+0 -16 Td (Scheme Name: _______________________________) Tj
+0 -16 Td (Redemption Amount / Units: _________________) Tj
+0 -16 Td (Bank Name: _________________________________) Tj
+0 -16 Td (Bank Account No.: __________________________) Tj
+0 -16 Td (IFSC Code: _________________________________) Tj
+0 -16 Td (PAN: _______________________________________) Tj
+0 -16 Td (Email: _____________________________________) Tj
+0 -16 Td (Mobile: ____________________________________) Tj
+0 -16 Td (Mode of Payment: NEFT / RTGS / Direct Credit) Tj
+0 -16 Td (Declaration: I/We request redemption as per details above.) Tj
+0 -16 Td (Signature(s): ______________________________) Tj
+0 -16 Td (Date: __________________) Tj
+ET
 endstream
 endobj
 5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
@@ -17,5 +33,5 @@ xref
 0000000351 00000 n 
 trailer << /Size 6 /Root 1 0 R >>
 startxref
-421
+1256
 %%EOF

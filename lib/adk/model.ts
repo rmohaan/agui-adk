@@ -1,7 +1,7 @@
 import { ensureMockRegistered } from "@/lib/adk/mock-llm";
 
 const hasGeminiKey = Boolean(
-  process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || "AIzaSyDrfpzaiLJmLXVO3r2cKh60nuAUq4djzik",
+  process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY,
 );
 
 export function resolveModel(): string {

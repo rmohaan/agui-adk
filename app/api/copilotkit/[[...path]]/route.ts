@@ -3,6 +3,7 @@ import {
   createCopilotEndpoint,
   createCopilotEndpointSingleRoute,
 } from "@copilotkitnext/runtime";
+import type { AbstractAgent } from "@ag-ui/client";
 import { handle } from "hono/vercel";
 import { HttpAgent } from "@ag-ui/client";
 
@@ -29,15 +30,20 @@ const getHandlers = () => {
       const copilotRuntime = new CopilotRuntime({
         agents: {
           // CopilotKit expects its own AbstractAgent type; runtime behavior is compatible.
-          adkAgent: adkAgent as unknown as any,
+          adkAgent: adkAgent as unknown as AbstractAgent,
         },
       });
 
       copilotRuntime.handleServiceAdapter(new EmptyAdapter());
 
       const instance = copilotRuntime.instance;
-      const resolvedAgents = await copilotRuntime.runtimeArgs.agents;
-      instance.agents = resolvedAgents;
+      const paramsAgents = (copilotRuntime.params?.agents ?? {}) as Record<
+        string,
+        AbstractAgent
+      >;
+      if (Object.keys(instance.agents).length === 0) {
+        instance.agents = paramsAgents;
+      }
 
       const multi = createCopilotEndpoint({
         runtime: instance,

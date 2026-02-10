@@ -46,6 +46,8 @@ export type AgentState = {
   fields: Record<FormFieldKey, AgentFieldState>;
   validation?: Partial<Record<FormFieldKey, ValidationResult>>;
   bankOptions?: string[];
+  schemeOptions?: string[];
+  ifscSuggestions?: string[];
   nudges?: string[];
   fieldNudges?: Partial<Record<FormFieldKey, FieldNudge>>;
   feedback?: Array<{

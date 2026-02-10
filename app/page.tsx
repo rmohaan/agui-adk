@@ -19,6 +19,8 @@ const emptyState: AgentState = {
   validation: {},
   nudges: [],
   fieldNudges: {},
+  schemeOptions: [],
+  ifscSuggestions: [],
   feedback: [],
 };
 
@@ -27,6 +29,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedForm, setSelectedForm] = useState<FormRecord | null>(null);
   const [loading, setLoading] = useState(true);
+  const [ghostIndex, setGhostIndex] = useState(-1);
 
   const agent = useCoAgent<AgentState>({
     name: "adkAgent",
@@ -101,6 +104,7 @@ export default function Home() {
       const response = await fetch(`/api/forms/${selectedId}`);
       const data = (await response.json()) as FormRecord;
       setSelectedForm(data);
+      setGhostIndex(-1);
       const nextFields = FORM_FIELDS.reduce((acc, field) => {
         acc[field.key] = {
           value: "",
@@ -117,6 +121,8 @@ export default function Home() {
         validation: {},
         nudges: [],
         fieldNudges: {},
+        schemeOptions: [],
+        ifscSuggestions: [],
       }));
 
       void triggerAgentRun();
@@ -124,17 +130,38 @@ export default function Home() {
     loadForm();
   }, [selectedId, triggerAgentRun]);
 
+  useEffect(() => {
+    if (!selectedForm) return;
+    let index = -1;
+    const timer = window.setInterval(() => {
+      index += 1;
+      setGhostIndex((current) => (current < index ? index : current));
+      if (index >= FORM_FIELDS.length - 1) {
+        window.clearInterval(timer);
+      }
+    }, 120);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [selectedForm]);
+
   const validation = agent.state?.validation ?? {};
   const nudges = agent.state?.nudges ?? [];
   const fieldNudges = agent.state?.fieldNudges ?? {};
+  const schemeOptions = agent.state?.schemeOptions ?? [];
 
   const updateField = (key: FormFieldKey, value: string) => {
     agent.setState((prev) => {
-      const field = prev.fields[key];
+      const safePrev = prev ?? emptyState;
+      const field = safePrev.fields[key] ?? {
+        value: "",
+        prefill: "",
+        status: "pending",
+      };
       return {
-        ...prev,
+        ...safePrev,
         fields: {
-          ...prev.fields,
+          ...safePrev.fields,
           [key]: {
             ...field,
             value,
@@ -145,13 +172,19 @@ export default function Home() {
     });
   };
 
+
   const acceptField = (key: FormFieldKey) => {
     agent.setState((prev) => {
-      const field = prev.fields[key];
+      const safePrev = prev ?? emptyState;
+      const field = safePrev.fields[key] ?? {
+        value: "",
+        prefill: "",
+        status: "pending",
+      };
       return {
-        ...prev,
+        ...safePrev,
         fields: {
-          ...prev.fields,
+          ...safePrev.fields,
           [key]: {
             ...field,
             status: "accepted",
@@ -159,7 +192,7 @@ export default function Home() {
           },
         },
         feedback: [
-          ...(prev.feedback ?? []),
+          ...(safePrev.feedback ?? []),
           {
             field: key,
             action: "accept",
@@ -174,11 +207,16 @@ export default function Home() {
 
   const rejectField = (key: FormFieldKey) => {
     agent.setState((prev) => {
-      const field = prev.fields[key];
+      const safePrev = prev ?? emptyState;
+      const field = safePrev.fields[key] ?? {
+        value: "",
+        prefill: "",
+        status: "pending",
+      };
       return {
-        ...prev,
+        ...safePrev,
         fields: {
-          ...prev.fields,
+          ...safePrev.fields,
           [key]: {
             ...field,
             status: "rejected",
@@ -186,7 +224,7 @@ export default function Home() {
           },
         },
         feedback: [
-          ...(prev.feedback ?? []),
+          ...(safePrev.feedback ?? []),
           {
             field: key,
             action: "reject",
@@ -201,18 +239,23 @@ export default function Home() {
 
   const blurField = (key: FormFieldKey) => {
     agent.setState((prev) => {
-      const field = prev.fields[key];
+      const safePrev = prev ?? emptyState;
+      const field = safePrev.fields[key] ?? {
+        value: "",
+        prefill: "",
+        status: "pending",
+      };
       return {
-        ...prev,
+        ...safePrev,
         fields: {
-          ...prev.fields,
+          ...safePrev.fields,
           [key]: {
             ...field,
             status: field.status === "accepted" ? "accepted" : "rejected",
           },
         },
         feedback: [
-          ...(prev.feedback ?? []),
+          ...(safePrev.feedback ?? []),
           {
             field: key,
             action: "edit",
@@ -316,7 +359,7 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col gap-4">
-              {FORM_FIELDS.map((field) => {
+              {FORM_FIELDS.map((field, index) => {
                 const current = agent.state?.fields?.[field.key];
                 if (!current) {
                   return null;
@@ -328,10 +371,20 @@ export default function Home() {
                     state={current}
                     validation={validation?.[field.key]}
                     nudge={fieldNudges?.[field.key]}
+                    ghostActive={index <= ghostIndex}
                     onAccept={() => acceptField(field.key)}
                     onReject={() => rejectField(field.key)}
                     onChange={(value) => updateField(field.key, value)}
                     onBlur={() => blurField(field.key)}
+                    onCommit={
+                      field.key === "scheme"
+                        ? (value) => {
+                            void value;
+                            void triggerAgentRun();
+                          }
+                        : undefined
+                    }
+                    options={field.key === "scheme" ? schemeOptions : undefined}
                   />
                 );
               })}

@@ -8,6 +8,9 @@ type FormFieldRowProps = {
   state: AgentFieldState;
   validation?: ValidationResult;
   nudge?: FieldNudge;
+  ghostActive?: boolean;
+  options?: string[];
+  onCommit?: (value: string) => void;
   onAccept: () => void;
   onReject: () => void;
   onChange: (value: string) => void;
@@ -19,6 +22,9 @@ export function FormFieldRow({
   state,
   validation,
   nudge,
+  ghostActive = false,
+  options = [],
+  onCommit,
   onAccept,
   onReject,
   onChange,
@@ -80,19 +86,44 @@ export function FormFieldRow({
         <div
           className={`relative rounded-xl border px-3 py-2 transition ${borderStyle} ${bgStyle}`}
         >
-          {state.status === "pending" && !state.value && state.prefill ? (
+          {state.status === "pending" &&
+          !state.value &&
+          state.prefill &&
+          ghostActive ? (
             <span className="pointer-events-none absolute left-3 top-2 text-sm text-slate-300">
               {state.prefill}
             </span>
           ) : null}
-          <input
-            type={field.type}
-            value={state.value ?? ""}
-            onChange={(event) => onChange(event.target.value)}
-            onBlur={onBlur}
-            placeholder={field.placeholder}
-            className={`w-full bg-transparent text-sm outline-none ${textStyle}`}
-          />
+          {field.type === "select" ? (
+            <select
+              value={state.value ?? ""}
+              onChange={(event) => {
+                const nextValue = event.target.value;
+                onChange(nextValue);
+                onCommit?.(nextValue);
+              }}
+              onBlur={onBlur}
+              className={`w-full bg-transparent text-sm outline-none ${textStyle}`}
+            >
+              <option value="">
+                {field.placeholder ?? "Select an option"}
+              </option>
+              {options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type={field.type}
+              value={state.value ?? ""}
+              onChange={(event) => onChange(event.target.value)}
+              onBlur={onBlur}
+              placeholder={field.placeholder}
+              className={`w-full bg-transparent text-sm outline-none ${textStyle}`}
+            />
+          )}
         </div>
 
         {state.status === "pending" ? (

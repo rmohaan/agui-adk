@@ -15,6 +15,8 @@ Rules:
   - amount -> check_amount_threshold
   - ifsc -> validate_ifsc
   - accountNumber -> validate_account_number
+- Always load scheme names with get_scheme_names so the UI can render the dropdown.
+- If bank is present, call fetch_ifsc_by_bank to suggest an IFSC code.
 - If any tool indicates KYC is required or high-value review is needed, add a short nudge.
 - Keep replies short and actionable. Summarize which fields are validated or need attention.
 `;
