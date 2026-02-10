@@ -30,6 +30,9 @@ export default function Home() {
   const [selectedForm, setSelectedForm] = useState<FormRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [ghostIndex, setGhostIndex] = useState(-1);
+  const [ghostText, setGhostText] = useState<
+    Partial<Record<FormFieldKey, string>>
+  >({});
 
   const agent = useCoAgent<AgentState>({
     name: "adkAgent",
@@ -47,6 +50,9 @@ export default function Home() {
   const runningRef = useRef(false);
   const runtimeAgentRef = useRef(runtimeAgent);
   const copilotkitRef = useRef(copilotkit);
+  const typingTimersRef = useRef<
+    Partial<Record<FormFieldKey, number>>
+  >({});
 
   useEffect(() => {
     runningRef.current = agent.running;
@@ -105,6 +111,13 @@ export default function Home() {
       const data = (await response.json()) as FormRecord;
       setSelectedForm(data);
       setGhostIndex(-1);
+      setGhostText({});
+      Object.values(typingTimersRef.current).forEach((timer) => {
+        if (timer) {
+          window.clearInterval(timer);
+        }
+      });
+      typingTimersRef.current = {};
       const nextFields = FORM_FIELDS.reduce((acc, field) => {
         acc[field.key] = {
           value: "",
@@ -139,11 +152,36 @@ export default function Home() {
       if (index >= FORM_FIELDS.length - 1) {
         window.clearInterval(timer);
       }
-    }, 120);
+    }, 2000);
     return () => {
       window.clearInterval(timer);
     };
   }, [selectedForm]);
+
+  useEffect(() => {
+    if (!selectedForm) return;
+    if (ghostIndex < 0 || ghostIndex >= FORM_FIELDS.length) return;
+    const key = FORM_FIELDS[ghostIndex]?.key;
+    if (!key) return;
+    const prefill = selectedForm.fields[key] ?? "";
+    if (!prefill) return;
+    if (typingTimersRef.current[key]) return;
+
+    let cursor = 0;
+    const timer = window.setInterval(() => {
+      cursor += 1;
+      setGhostText((prev) => ({
+        ...prev,
+        [key]: prefill.slice(0, cursor),
+      }));
+      if (cursor >= prefill.length) {
+        window.clearInterval(timer);
+        typingTimersRef.current[key] = undefined;
+      }
+    }, 100);
+
+    typingTimersRef.current[key] = timer;
+  }, [ghostIndex, selectedForm]);
 
   const validation = agent.state?.validation ?? {};
   const nudges = agent.state?.nudges ?? [];
@@ -151,6 +189,17 @@ export default function Home() {
   const schemeOptions = agent.state?.schemeOptions ?? [];
 
   const updateField = (key: FormFieldKey, value: string) => {
+    const typingTimer = typingTimersRef.current[key];
+    if (typingTimer) {
+      window.clearInterval(typingTimer);
+      typingTimersRef.current[key] = undefined;
+    }
+    setGhostText((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
       const field = safePrev.fields[key] ?? {
@@ -372,6 +421,7 @@ export default function Home() {
                     validation={validation?.[field.key]}
                     nudge={fieldNudges?.[field.key]}
                     ghostActive={index <= ghostIndex}
+                    ghostText={ghostText[field.key]}
                     onAccept={() => acceptField(field.key)}
                     onReject={() => rejectField(field.key)}
                     onChange={(value) => updateField(field.key, value)}

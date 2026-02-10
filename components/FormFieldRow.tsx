@@ -9,6 +9,7 @@ type FormFieldRowProps = {
   validation?: ValidationResult;
   nudge?: FieldNudge;
   ghostActive?: boolean;
+  ghostText?: string;
   options?: string[];
   onCommit?: (value: string) => void;
   onAccept: () => void;
@@ -23,6 +24,7 @@ export function FormFieldRow({
   validation,
   nudge,
   ghostActive = false,
+  ghostText,
   options = [],
   onCommit,
   onAccept,
@@ -43,6 +45,10 @@ export function FormFieldRow({
       : state.status === "rejected"
         ? "bg-amber-50"
         : "bg-white/80";
+
+  const ghostContent = ghostText ?? "";
+  const isGhostVisible =
+    state.status === "pending" && !state.value && ghostContent && ghostActive;
 
   const textStyle =
     state.status === "pending" && !state.value
@@ -86,12 +92,9 @@ export function FormFieldRow({
         <div
           className={`relative rounded-xl border px-3 py-2 transition ${borderStyle} ${bgStyle}`}
         >
-          {state.status === "pending" &&
-          !state.value &&
-          state.prefill &&
-          ghostActive ? (
-            <span className="pointer-events-none absolute left-3 top-2 text-sm text-slate-300">
-              {state.prefill}
+          {isGhostVisible ? (
+            <span className="pointer-events-none absolute left-3 top-2 text-sm text-slate-400">
+              {ghostContent}
             </span>
           ) : null}
           {field.type === "select" ? (
@@ -103,10 +106,12 @@ export function FormFieldRow({
                 onCommit?.(nextValue);
               }}
               onBlur={onBlur}
-              className={`w-full bg-transparent text-sm outline-none ${textStyle}`}
+              className={`w-full bg-transparent text-sm outline-none ${
+                isGhostVisible ? "text-transparent" : textStyle
+              }`}
             >
-              <option value="">
-                {field.placeholder ?? "Select an option"}
+              <option value="" className="text-slate-400">
+                {isGhostVisible ? "" : field.placeholder ?? "Select an option"}
               </option>
               {options.map((option) => (
                 <option key={option} value={option}>
