@@ -12,6 +12,7 @@ type FormFieldRowProps = {
   ghostText?: string;
   options?: string[];
   onCommit?: (value: string) => void;
+  onApplySuggestion?: (value: string) => void;
   onAccept: () => void;
   onReject: () => void;
   onChange: (value: string) => void;
@@ -27,6 +28,7 @@ export function FormFieldRow({
   ghostText,
   options = [],
   onCommit,
+  onApplySuggestion,
   onAccept,
   onReject,
   onChange,
@@ -82,9 +84,20 @@ export function FormFieldRow({
           )}
         </div>
         {nudge ? (
-          <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${nudgeStyle}`}>
-            {nudge.message}
-          </span>
+          nudge.suggestedValue && onApplySuggestion ? (
+            <button
+              type="button"
+              onClick={() => onApplySuggestion(nudge.suggestedValue ?? "")}
+              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition hover:brightness-95 ${nudgeStyle}`}
+              title="Apply suggested value"
+            >
+              {nudge.message}
+            </button>
+          ) : (
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${nudgeStyle}`}>
+              {nudge.message}
+            </span>
+          )
         ) : null}
       </div>
 

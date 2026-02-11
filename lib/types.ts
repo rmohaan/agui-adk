@@ -39,6 +39,7 @@ export type NudgeSeverity = "good" | "bad" | "unknown";
 export type FieldNudge = {
   message: string;
   severity: NudgeSeverity;
+  suggestedValue?: string;
 };
 
 export type AgentState = {

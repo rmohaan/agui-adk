@@ -228,6 +228,7 @@ export const validateIfscTool = new FunctionTool({
         : suggestions.length > 0
           ? `Suggested IFSC: ${suggestions[0]}`
           : "Awaiting IFSC.",
+      suggestedValue: !hasValue && suggestions.length > 0 ? suggestions[0] : undefined,
     });
     return { ifsc, valid };
   },
@@ -347,6 +348,7 @@ export const fetchIfscByBankTool = new FunctionTool({
         suggestions.length > 0
           ? `Suggested IFSC: ${suggestions[0]}`
           : "Unable to fetch IFSC for bank.",
+      suggestedValue: suggestions[0],
     });
     return { bank: cleaned, ifscSuggestions: suggestions };
   },

@@ -188,7 +188,7 @@ export default function Home() {
   const fieldNudges = agent.state?.fieldNudges ?? {};
   const schemeOptions = agent.state?.schemeOptions ?? [];
 
-  const updateField = (key: FormFieldKey, value: string) => {
+  const clearGhostForField = (key: FormFieldKey) => {
     const typingTimer = typingTimersRef.current[key];
     if (typingTimer) {
       window.clearInterval(typingTimer);
@@ -200,6 +200,10 @@ export default function Home() {
       delete next[key];
       return next;
     });
+  };
+
+  const updateField = (key: FormFieldKey, value: string) => {
+    clearGhostForField(key);
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
       const field = safePrev.fields[key] ?? {
@@ -317,6 +321,39 @@ export default function Home() {
     void triggerAgentRun();
   };
 
+  const applySuggestedFieldValue = (key: FormFieldKey, value: string) => {
+    clearGhostForField(key);
+    agent.setState((prev) => {
+      const safePrev = prev ?? emptyState;
+      const field = safePrev.fields[key] ?? {
+        value: "",
+        prefill: "",
+        status: "pending",
+      };
+      return {
+        ...safePrev,
+        fields: {
+          ...safePrev.fields,
+          [key]: {
+            ...field,
+            value,
+            status: "rejected",
+          },
+        },
+        feedback: [
+          ...(safePrev.feedback ?? []),
+          {
+            field: key,
+            action: "edit",
+            value,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      };
+    });
+    void triggerAgentRun();
+  };
+
   const statusLabel = useMemo(() => {
     if (agent.running) return "Agent running checks";
     return "Agent idle";
@@ -426,6 +463,9 @@ export default function Home() {
                     onReject={() => rejectField(field.key)}
                     onChange={(value) => updateField(field.key, value)}
                     onBlur={() => blurField(field.key)}
+                    onApplySuggestion={(value) =>
+                      applySuggestedFieldValue(field.key, value)
+                    }
                     onCommit={
                       field.key === "scheme"
                         ? (value) => {
