@@ -110,7 +110,8 @@ export default function Home() {
       const response = await fetch("/api/forms");
       const data = (await response.json()) as FormRecord[];
       setForms(data);
-      setSelectedId(data[0]?.id ?? null);
+      setSelectedId(null);
+      setSelectedForm(null);
       setLoading(false);
     };
     loadForms();
