@@ -8,7 +8,7 @@ Agent-assisted mutual fund redemption form review built with Next.js App Router,
 - Prefilled right pane with accept/reject + ghost fill effect
 - Bidirectional state sync between UI and ADK backend using AG-UI protocol via CopilotKit runtime
 - Tool-driven validations (folio, bank, PAN KYC, amount, IFSC, account number)
-- Gemini 2.5 Flash primary model, dev mock fallback
+- Model selection priority: ADC (Vertex AI), then Gemini API key, then Ollama
 - Mock JSON datastore with optional Postgres layer
 
 ## Quick Start
@@ -28,7 +28,7 @@ Create a `.env.local` with the following as needed:
 # CopilotKit -> AG-UI endpoint (defaults to http://localhost:3000/api/agui)
 AGUI_ENDPOINT=http://localhost:3000/api/agui
 
-# Gemini (preferred)
+# Gemini API key (second priority)
 GOOGLE_GENAI_API_KEY=your_key_here
 # or
 GEMINI_API_KEY=your_key_here
@@ -36,23 +36,27 @@ GEMINI_API_KEY=your_key_here
 # Optional model override
 ADK_MODEL=
 
-# Application Default Credentials (Vertex AI)
+# Application Default Credentials (Vertex AI) - first priority
 GOOGLE_GENAI_USE_VERTEXAI=true
 GOOGLE_CLOUD_PROJECT=your-gcp-project
 GOOGLE_CLOUD_LOCATION=asia-south1
+
+# Ollama - third priority fallback
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.1
 
 # Optional Postgres
 DATABASE_URL=postgres://user:pass@host:5432/dbname
 ```
 
-You can use either:
-- Gemini API key: `GOOGLE_GENAI_API_KEY` or `GEMINI_API_KEY`
-- Application Default Credentials (Vertex AI):
-  set `GOOGLE_GENAI_USE_VERTEXAI=true`, `GOOGLE_CLOUD_PROJECT`,
-  `GOOGLE_CLOUD_LOCATION`, and run
-  `gcloud auth application-default login`.
+Model resolution priority:
+1. ADC on Vertex AI (`GOOGLE_GENAI_USE_VERTEXAI=true` + `GOOGLE_CLOUD_PROJECT` + `GOOGLE_CLOUD_LOCATION`)
+2. Gemini API key (`GOOGLE_GENAI_API_KEY` or `GEMINI_API_KEY`)
+3. Ollama (`OLLAMA_BASE_URL` + `OLLAMA_MODEL`)
+4. Mock LLM (`mock`) as last resort when `DISABLE_OLLAMA_FALLBACK=true`
 
-If neither is present and you're in development, the app uses a mock LLM.
+To use ADC, run:
+`gcloud auth application-default login`
 
 ## Data
 
