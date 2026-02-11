@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Manrope, Unbounded } from "next/font/google";
+import { IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import { CopilotKit } from "@copilotkit/react-core";
 import "./globals.css";
 
-const heading = Unbounded({
+const heading = Source_Serif_4({
   variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
-const body = Manrope({
+const body = IBM_Plex_Sans({
   variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {

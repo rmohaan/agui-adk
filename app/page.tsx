@@ -48,6 +48,7 @@ export default function Home() {
   const runPendingRef = useRef(false);
   const runTimerRef = useRef<number | null>(null);
   const runningRef = useRef(false);
+  const dirtyFieldsRef = useRef<Set<FormFieldKey>>(new Set());
   const runtimeAgentRef = useRef(runtimeAgent);
   const copilotkitRef = useRef(copilotkit);
   const typingTimersRef = useRef<
@@ -94,6 +95,17 @@ export default function Home() {
   }, [agent.running, triggerAgentRun]);
 
   useEffect(() => {
+    if (agent.running) return;
+    if (!agent.state?.activeField) return;
+    agent.setState((prev) => {
+      if (!prev?.activeField) {
+        return prev ?? emptyState;
+      }
+      return { ...prev, activeField: undefined };
+    });
+  }, [agent.running, agent.state?.activeField, agent]);
+
+  useEffect(() => {
     const loadForms = async () => {
       const response = await fetch("/api/forms");
       const data = (await response.json()) as FormRecord[];
@@ -112,6 +124,7 @@ export default function Home() {
       setSelectedForm(data);
       setGhostIndex(-1);
       setGhostText({});
+      dirtyFieldsRef.current.clear();
       Object.values(typingTimersRef.current).forEach((timer) => {
         if (timer) {
           window.clearInterval(timer);
@@ -130,6 +143,7 @@ export default function Home() {
       agentRef.current.setState((prev) => ({
         ...prev,
         formId: data.id,
+        activeField: undefined,
         fields: nextFields,
         validation: {},
         nudges: [],
@@ -204,6 +218,7 @@ export default function Home() {
 
   const updateField = (key: FormFieldKey, value: string) => {
     clearGhostForField(key);
+    dirtyFieldsRef.current.add(key);
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
       const field = safePrev.fields[key] ?? {
@@ -236,6 +251,7 @@ export default function Home() {
       };
       return {
         ...safePrev,
+        activeField: key,
         fields: {
           ...safePrev.fields,
           [key]: {
@@ -255,6 +271,7 @@ export default function Home() {
         ],
       };
     });
+    dirtyFieldsRef.current.delete(key);
     void triggerAgentRun();
   };
 
@@ -268,6 +285,7 @@ export default function Home() {
       };
       return {
         ...safePrev,
+        activeField: key,
         fields: {
           ...safePrev.fields,
           [key]: {
@@ -287,10 +305,15 @@ export default function Home() {
         ],
       };
     });
+    dirtyFieldsRef.current.delete(key);
     void triggerAgentRun();
   };
 
   const blurField = (key: FormFieldKey) => {
+    if (!dirtyFieldsRef.current.has(key)) {
+      return;
+    }
+    dirtyFieldsRef.current.delete(key);
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
       const field = safePrev.fields[key] ?? {
@@ -300,6 +323,7 @@ export default function Home() {
       };
       return {
         ...safePrev,
+        activeField: key,
         fields: {
           ...safePrev.fields,
           [key]: {
@@ -323,6 +347,7 @@ export default function Home() {
 
   const applySuggestedFieldValue = (key: FormFieldKey, value: string) => {
     clearGhostForField(key);
+    dirtyFieldsRef.current.delete(key);
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
       const field = safePrev.fields[key] ?? {
@@ -332,6 +357,7 @@ export default function Home() {
       };
       return {
         ...safePrev,
+        activeField: key,
         fields: {
           ...safePrev.fields,
           [key]: {
@@ -465,14 +491,6 @@ export default function Home() {
                     onBlur={() => blurField(field.key)}
                     onApplySuggestion={(value) =>
                       applySuggestedFieldValue(field.key, value)
-                    }
-                    onCommit={
-                      field.key === "scheme"
-                        ? (value) => {
-                            void value;
-                            void triggerAgentRun();
-                          }
-                        : undefined
                     }
                     options={field.key === "scheme" ? schemeOptions : undefined}
                   />
