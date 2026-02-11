@@ -8,7 +8,7 @@ Agent-assisted mutual fund redemption form review built with Next.js App Router,
 - Prefilled right pane with accept/reject + ghost fill effect
 - Bidirectional state sync between UI and ADK backend using AG-UI protocol via CopilotKit runtime
 - Tool-driven validations (folio, bank, PAN KYC, amount, IFSC, account number)
-- Gemini 2.5 Flash primary model, Ollama 3.1 fallback for local dev
+- Gemini 2.5 Flash primary model, dev mock fallback
 - Mock JSON datastore with optional Postgres layer
 
 ## Quick Start
@@ -36,13 +36,23 @@ GEMINI_API_KEY=your_key_here
 # Optional model override
 ADK_MODEL=
 
-# Ollama fallback
+# Application Default Credentials (Vertex AI)
+GOOGLE_GENAI_USE_VERTEXAI=true
+GOOGLE_CLOUD_PROJECT=your-gcp-project
+GOOGLE_CLOUD_LOCATION=asia-south1
 
 # Optional Postgres
 DATABASE_URL=postgres://user:pass@host:5432/dbname
 ```
 
-Gemini is required. Set `GOOGLE_GENAI_API_KEY` or `GEMINI_API_KEY`.
+You can use either:
+- Gemini API key: `GOOGLE_GENAI_API_KEY` or `GEMINI_API_KEY`
+- Application Default Credentials (Vertex AI):
+  set `GOOGLE_GENAI_USE_VERTEXAI=true`, `GOOGLE_CLOUD_PROJECT`,
+  `GOOGLE_CLOUD_LOCATION`, and run
+  `gcloud auth application-default login`.
+
+If neither is present and you're in development, the app uses a mock LLM.
 
 ## Data
 

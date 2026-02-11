@@ -4,6 +4,13 @@ const hasGeminiKey = Boolean(
   process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY,
 );
 
+const useVertex = ["true", "1"].includes(
+  (process.env.GOOGLE_GENAI_USE_VERTEXAI || "").toLowerCase(),
+);
+const hasVertexConfig = Boolean(
+  process.env.GOOGLE_CLOUD_PROJECT && process.env.GOOGLE_CLOUD_LOCATION,
+);
+
 export function resolveModel(): string {
   const configuredModel = process.env.ADK_MODEL?.trim();
   if (configuredModel) {
@@ -18,6 +25,10 @@ export function resolveModel(): string {
   }
 
   if (hasGeminiKey) {
+    return "gemini-2.5-flash";
+  }
+
+  if (useVertex && hasVertexConfig) {
     return "gemini-2.5-flash";
   }
 
