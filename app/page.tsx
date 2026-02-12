@@ -224,11 +224,26 @@ export default function Home() {
     });
   };
 
+  const clearFieldDerivedState = (
+    prev: AgentState,
+    key: FormFieldKey,
+  ): Pick<AgentState, "validation" | "fieldNudges"> => {
+    const nextValidation = { ...(prev.validation ?? {}) };
+    delete nextValidation[key];
+    const nextFieldNudges = { ...(prev.fieldNudges ?? {}) };
+    delete nextFieldNudges[key];
+    return {
+      validation: nextValidation,
+      fieldNudges: nextFieldNudges,
+    };
+  };
+
   const updateField = (key: FormFieldKey, value: string) => {
     clearGhostForField(key);
     dirtyFieldsRef.current.add(key);
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
+      const cleared = clearFieldDerivedState(safePrev, key);
       const field = safePrev.fields[key] ?? {
         value: "",
         prefill: "",
@@ -236,6 +251,7 @@ export default function Home() {
       };
       return {
         ...safePrev,
+        ...cleared,
         fields: {
           ...safePrev.fields,
           [key]: {
@@ -286,6 +302,7 @@ export default function Home() {
   const rejectField = (key: FormFieldKey) => {
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
+      const cleared = clearFieldDerivedState(safePrev, key);
       const field = safePrev.fields[key] ?? {
         value: "",
         prefill: "",
@@ -293,7 +310,7 @@ export default function Home() {
       };
       return {
         ...safePrev,
-        activeField: key,
+        ...cleared,
         fields: {
           ...safePrev.fields,
           [key]: {
@@ -314,7 +331,6 @@ export default function Home() {
       };
     });
     dirtyFieldsRef.current.delete(key);
-    void triggerAgentRun();
   };
 
   const blurField = (key: FormFieldKey) => {
@@ -322,15 +338,42 @@ export default function Home() {
       return;
     }
     dirtyFieldsRef.current.delete(key);
+    let shouldRun = false;
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
+      const cleared = clearFieldDerivedState(safePrev, key);
       const field = safePrev.fields[key] ?? {
         value: "",
         prefill: "",
         status: "pending",
       };
+      const hasValue = field.value.trim().length > 0;
+      if (!hasValue) {
+        return {
+          ...safePrev,
+          ...cleared,
+          fields: {
+            ...safePrev.fields,
+            [key]: {
+              ...field,
+              status: "rejected",
+            },
+          },
+          feedback: [
+            ...(safePrev.feedback ?? []),
+            {
+              field: key,
+              action: "edit",
+              value: field.value,
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        };
+      }
+      shouldRun = true;
       return {
         ...safePrev,
+        ...cleared,
         activeField: key,
         fields: {
           ...safePrev.fields,
@@ -350,7 +393,9 @@ export default function Home() {
         ],
       };
     });
-    void triggerAgentRun();
+    if (shouldRun) {
+      void triggerAgentRun();
+    }
   };
 
   const applySuggestedFieldValue = (key: FormFieldKey, value: string) => {
@@ -358,6 +403,7 @@ export default function Home() {
     dirtyFieldsRef.current.delete(key);
     agent.setState((prev) => {
       const safePrev = prev ?? emptyState;
+      const cleared = clearFieldDerivedState(safePrev, key);
       const field = safePrev.fields[key] ?? {
         value: "",
         prefill: "",
@@ -365,6 +411,7 @@ export default function Home() {
       };
       return {
         ...safePrev,
+        ...cleared,
         activeField: key,
         fields: {
           ...safePrev.fields,
