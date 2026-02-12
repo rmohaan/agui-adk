@@ -11,6 +11,7 @@ Rules:
 - Use state.activeField as the trigger for validation on user blur/tab.
 - When state.activeField is set, validate only that field (plus direct dependency):
   - folio -> lookup_folio_banks
+  - folio -> get_scheme_names (with folio) to update scheme dropdown dynamically
   - pan -> check_pan_kyc
   - bank -> validate_bank
   - bank -> fetch_ifsc_by_bank (dependency for IFSC suggestion)

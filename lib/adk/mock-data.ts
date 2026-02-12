@@ -14,6 +14,13 @@ export const FOLIO_TO_BANKS: Record<string, string[]> = {
   "MIRA-778120": ["Kotak Mahindra Bank"],
 };
 
+export const FOLIO_TO_SCHEMES: Record<string, string[]> = {
+  "AXIS-009184": ["Axis Bluechip Fund - Direct Growth"],
+  "SBI-552901": ["SBI Small Cap Fund - Regular Growth"],
+  "HDFC-443219": ["HDFC Balanced Advantage - Direct Growth"],
+  "MIRA-778120": ["Mirae Asset Large Cap - Direct Growth"],
+};
+
 export const PAN_KYC_STATUS: Record<string, "KYC_OK" | "KYC_REQUIRED"> = {
   ABCDE1234F: "KYC_OK",
   PQRST6789K: "KYC_REQUIRED",

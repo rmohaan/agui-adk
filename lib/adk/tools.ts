@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import {
   FOLIO_TO_BANKS,
+  FOLIO_TO_SCHEMES,
   PAN_KYC_STATUS,
   BANKS,
   SCHEMES,
@@ -129,7 +130,9 @@ export const lookupFolioBanksTool = new FunctionTool({
   execute: async ({ folio }, toolContext) => {
     const cleaned = folio.trim();
     const banks = FOLIO_TO_BANKS[cleaned] ?? BANKS.slice(0, 3);
+    const schemes = FOLIO_TO_SCHEMES[cleaned] ?? [];
     toolContext?.state.set("bankOptions", banks);
+    setSchemeOptions(toolContext, schemes);
     const valid = cleaned.length > 0 ? isValidFolio(cleaned) : false;
     const hasValue = cleaned.length > 0;
     mergeValidation(toolContext, "folio", {
@@ -144,7 +147,7 @@ export const lookupFolioBanksTool = new FunctionTool({
           : "Folio format invalid."
         : "Awaiting folio input.",
     });
-    return { folio, banks };
+    return { folio, banks, schemes };
   },
 });
 
@@ -325,10 +328,12 @@ export const getSchemeNamesTool = new FunctionTool({
   name: "get_scheme_names",
   description: "Fetch available scheme names for redemption from the database.",
   parameters: z.object({
+    folio: z.string().optional().describe("Mutual fund folio number"),
     scheme: z.string().optional().describe("Scheme name entered by the user"),
   }),
-  execute: async ({ scheme }, toolContext) => {
-    const list = SCHEMES;
+  execute: async ({ folio, scheme }, toolContext) => {
+    const cleanedFolio = (folio ?? "").trim();
+    const list = cleanedFolio ? (FOLIO_TO_SCHEMES[cleanedFolio] ?? []) : SCHEMES;
     setSchemeOptions(toolContext, list);
     const cleaned = (scheme ?? "").trim();
     const hasValue = cleaned.length > 0;
