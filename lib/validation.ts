@@ -15,5 +15,5 @@ export function isValidAccountNumber(accountNumber: string): boolean {
 }
 
 export function isHighValueAmount(amount: number): boolean {
-  return amount > 100000;
+  return amount > 50000;
 }
