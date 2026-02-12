@@ -48,6 +48,7 @@ export default function Home() {
   const runPendingRef = useRef(false);
   const runTimerRef = useRef<number | null>(null);
   const runningRef = useRef(false);
+  const wasRunningRef = useRef(false);
   const dirtyFieldsRef = useRef<Set<FormFieldKey>>(new Set());
   const runtimeAgentRef = useRef(runtimeAgent);
   const copilotkitRef = useRef(copilotkit);
@@ -95,14 +96,16 @@ export default function Home() {
   }, [agent.running, triggerAgentRun]);
 
   useEffect(() => {
-    if (agent.running) return;
-    if (!agent.state?.activeField) return;
-    agent.setState((prev) => {
-      if (!prev?.activeField) {
-        return prev ?? emptyState;
-      }
-      return { ...prev, activeField: undefined };
-    });
+    const justFinished = wasRunningRef.current && !agent.running;
+    if (justFinished && agent.state?.activeField) {
+      agent.setState((prev) => {
+        if (!prev?.activeField) {
+          return prev ?? emptyState;
+        }
+        return { ...prev, activeField: undefined };
+      });
+    }
+    wasRunningRef.current = agent.running;
   }, [agent.running, agent.state?.activeField, agent]);
 
   useEffect(() => {
