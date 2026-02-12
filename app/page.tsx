@@ -6,6 +6,7 @@ import { useCoAgent } from "@copilotkit/react-core";
 import { useAgent, useCopilotKit } from "@copilotkitnext/react";
 
 import { FormFieldRow } from "@/components/FormFieldRow";
+import { SCHEMES } from "@/lib/adk/mock-data";
 import { FORM_FIELDS } from "@/lib/forms";
 import type { AgentState, FormRecord, FormFieldKey } from "@/lib/types";
 
@@ -19,7 +20,7 @@ const emptyState: AgentState = {
   validation: {},
   nudges: [],
   fieldNudges: {},
-  schemeOptions: [],
+  schemeOptions: SCHEMES,
   ifscSuggestions: [],
   feedback: [],
 };
@@ -152,7 +153,7 @@ export default function Home() {
         validation: {},
         nudges: [],
         fieldNudges: {},
-        schemeOptions: [],
+        schemeOptions: SCHEMES,
         ifscSuggestions: [],
       }));
 
@@ -204,7 +205,10 @@ export default function Home() {
   const validation = agent.state?.validation ?? {};
   const nudges = agent.state?.nudges ?? [];
   const fieldNudges = agent.state?.fieldNudges ?? {};
-  const schemeOptions = agent.state?.schemeOptions ?? [];
+  const schemeOptions =
+    agent.state?.schemeOptions && agent.state.schemeOptions.length > 0
+      ? agent.state.schemeOptions
+      : SCHEMES;
 
   const clearGhostForField = (key: FormFieldKey) => {
     const typingTimer = typingTimersRef.current[key];
