@@ -63,6 +63,28 @@ const setFieldNudge = (
   });
 };
 
+const clearFieldNudge = (
+  toolContext:
+    | {
+        state: {
+          get: (key: string, value: unknown) => unknown;
+          set: (key: string, value: unknown) => void;
+        };
+      }
+    | undefined,
+  key: string,
+) => {
+  if (!toolContext) return;
+  const existing = (toolContext.state.get("fieldNudges", {}) as Record<
+    string,
+    FieldNudge
+  >) || {};
+  if (!(key in existing)) return;
+  const next = { ...existing };
+  delete next[key];
+  toolContext.state.set("fieldNudges", next);
+};
+
 const resolveSeverity = (valid: boolean, hasValue: boolean): NudgeSeverity => {
   if (!hasValue) return "unknown";
   return valid ? "good" : "bad";
@@ -321,10 +343,7 @@ export const getSchemeNamesTool = new FunctionTool({
         message: valid ? "Scheme verified." : "Scheme not found.",
       });
     } else {
-      setFieldNudge(toolContext, "scheme", {
-        severity: "unknown",
-        message: "Select a scheme.",
-      });
+      clearFieldNudge(toolContext, "scheme");
     }
     return { schemes: list };
   },

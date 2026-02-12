@@ -79,6 +79,14 @@ export function FormFieldRow({
             >
               {validation.message}
             </p>
+          ) : state.status === "accepted" ? (
+            <p className="mt-1 text-xs font-medium text-emerald-600">
+              Accepted by user.
+            </p>
+          ) : state.status === "rejected" ? (
+            <p className="mt-1 text-xs text-slate-500">
+              User edited value. Agent will validate.
+            </p>
           ) : (
             <p className="mt-1 text-xs text-slate-500">Awaiting check</p>
           )}
