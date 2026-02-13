@@ -453,7 +453,7 @@ export default function Home() {
             </h1>
           </div>
           {agent.running ? (
-            <div className="animate-pulse rounded-full bg-gradient-to-r from-cyan-400 via-teal-500 to-emerald-500 p-[1px] transition-all duration-500">
+            <div className="agent-status-running rounded-full p-[1.5px] transition-all duration-500">
               <div className="glass rounded-full px-4 py-2 text-xs font-semibold text-slate-700">
                 {statusLabel}
               </div>
