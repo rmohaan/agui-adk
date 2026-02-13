@@ -453,8 +453,8 @@ export default function Home() {
             </h1>
           </div>
           {agent.running ? (
-            <div className="agent-status-running transition-all duration-500">
-              <div className="agent-status-inner px-4 py-2 text-xs font-semibold text-slate-700">
+            <div className="agent-status-running px-4 py-2 transition-all duration-300">
+              <div className="agent-status-inner text-xs font-semibold text-slate-700">
                 {statusLabel}
               </div>
             </div>
