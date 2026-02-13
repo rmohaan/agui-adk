@@ -205,7 +205,7 @@ export const validateAmountTool = new FunctionTool({
     mergeValidation(toolContext, "amount", {
       valid: !requiresReview,
       message: requiresReview
-        ? "Amount exceeds 100000. Manual review required."
+        ? "Amount exceeds 50000. Manual review required."
         : "Amount within standard threshold.",
     });
     setFieldNudge(toolContext, "amount", {
