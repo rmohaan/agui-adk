@@ -76,7 +76,7 @@ a {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 140%;
+  width: 100%;
   aspect-ratio: 1;
   background: conic-gradient(
     from 90deg,
@@ -87,7 +87,7 @@ a {
     #86efac 352deg,
     transparent 360deg
   );
-  transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+  transform: translate(-50%, -50%) rotate(0turn);
   animation: agent-border-spin 2s linear infinite;
 }
 
@@ -118,9 +118,9 @@ a {
 
 @keyframes agent-border-spin {
   from {
-    transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+    transform: translate(-50%, -50%) rotate(0turn);
   }
   to {
-    transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
+    transform: translate(-50%, -50%) rotate(1turn);
   }
 }
