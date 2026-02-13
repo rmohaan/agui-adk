@@ -63,36 +63,64 @@ a {
 }
 
 .agent-status-running {
+  --offset: 2px;
   position: relative;
   overflow: hidden;
   border-radius: 9999px;
-  padding: 1.5px;
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow: 0 8px 18px rgba(41, 121, 255, 0.12);
+  background: #f8fbff;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
 }
 
 .agent-status-running::before {
   content: "";
   position: absolute;
-  inset: -120%;
-  border-radius: inherit;
+  top: 50%;
+  left: 50%;
+  width: 140%;
+  aspect-ratio: 1;
   background: conic-gradient(
-    from 0deg,
+    from 90deg,
     transparent 0deg,
-    transparent 260deg,
-    #8ab4f8 300deg,
-    #7cc7ff 328deg,
-    #9be7d8 350deg,
+    transparent 280deg,
+    #93c5fd 315deg,
+    #67e8f9 336deg,
+    #86efac 352deg,
     transparent 360deg
   );
-  animation: agent-border-spin 1.6s linear infinite;
+  transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+  animation: agent-border-spin 2s linear infinite;
+}
+
+.agent-status-running::after {
+  content: "";
+  position: absolute;
+  inset: var(--offset);
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 1;
+}
+
+.agent-status-inner {
+  position: relative;
+  z-index: 2;
+  border-radius: 9999px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(12px);
+}
+
+.agent-status-idle {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  border-radius: 9999px;
 }
 
 @keyframes agent-border-spin {
-  0% {
-    transform: rotate(0deg);
+  from {
+    transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
   }
-  100% {
-    transform: rotate(360deg);
+  to {
+    transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
   }
 }
