@@ -35,14 +35,18 @@ export function FormFieldRow({
   onBlur,
 }: FormFieldRowProps) {
   const borderStyle =
-    state.status === "accepted"
+    validation && !validation.valid
+      ? "border-rose-500"
+      : state.status === "accepted"
       ? "border-green-500"
       : state.status === "rejected"
         ? "border-amber-500"
         : "border-slate-200";
 
   const bgStyle =
-    state.status === "accepted"
+    validation && !validation.valid
+      ? "bg-rose-50"
+      : state.status === "accepted"
       ? "bg-green-50"
       : state.status === "rejected"
         ? "bg-amber-50"
