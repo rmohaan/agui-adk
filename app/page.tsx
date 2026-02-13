@@ -114,7 +114,7 @@ export default function Home() {
       const response = await fetch("/api/forms");
       const data = (await response.json()) as FormRecord[];
       setForms(data);
-      setSelectedId(data[0]?.id ?? null);
+      setSelectedId(null);
       setSelectedForm(null);
       setLoading(false);
     };
@@ -501,7 +501,7 @@ export default function Home() {
                 Form Preview
               </h3>
               {selectedForm ? (
-                <PdfViewer url={selectedForm.pdfUrl} />
+                <PdfViewer url={`/api/forms/${selectedForm.id}/preview-pdf`} />
               ) : (
                 <div className="rounded-2xl bg-slate-100 p-6 text-sm text-slate-500">
                   Select a form to preview.
