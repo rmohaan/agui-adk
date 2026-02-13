@@ -63,7 +63,7 @@ a {
 }
 
 .agent-status-running {
-  --offset: 1px;
+  --offset: 3px;
   position: relative;
   overflow: hidden;
   border-radius: 9999px;

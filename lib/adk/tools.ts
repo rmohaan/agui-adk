@@ -299,9 +299,15 @@ export const checkPanKycTool = new FunctionTool({
     const valid = hasValue ? isValidPAN(normalized) : false;
     const kycStatus =
       hasValue && valid ? PAN_KYC_STATUS[normalized] ?? "KYC_REQUIRED" : "UNKNOWN";
+    const kycStatusMessage =
+      kycStatus === "KYC_OK"
+        ? "KYC is completed for this PAN."
+        : kycStatus === "KYC_REQUIRED"
+          ? "KYC is pending for this PAN."
+          : "Unable to determine KYC status.";
     mergeValidation(toolContext, "pan", {
-      valid,
-      message: valid ? `PAN valid. ${kycStatus}` : "PAN format invalid.",
+      valid: valid && kycStatus !== "KYC_REQUIRED",
+      message: valid ? `PAN format is valid. ${kycStatusMessage}` : "PAN format looks invalid.",
     });
     if (kycStatus === "KYC_REQUIRED") {
       const nudges = (toolContext?.state.get("nudges", []) as string[]) || [];
@@ -320,7 +326,7 @@ export const checkPanKycTool = new FunctionTool({
             ? "KYC required."
             : "PAN KYC verified.",
     });
-    return { pan: normalized, kycStatus, valid };
+    return { pan: normalized, kycStatus, kycStatusMessage, valid };
   },
 });
 
