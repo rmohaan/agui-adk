@@ -172,15 +172,16 @@ export function FormFieldRow({
             >
               Reject
             </button>
-            <span className="text-slate-400">
-              Ghost-filled from extracted form data
-            </span>
           </div>
         ) : (
           <p className="text-xs text-slate-500">
-            {state.status === "accepted"
-              ? "Accepted and synced with agent."
-              : "User edited value will be validated by the agent."}
+            {validation
+              ? validation.valid
+                ? "Accepted and synced with agent."
+                : "Not accepted, yet synced with agent."
+              : state.status === "accepted"
+                ? "Accepted and synced with agent."
+                : "User edited value will be validated by the agent."}
           </p>
         )}
       </div>
