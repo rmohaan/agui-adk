@@ -63,22 +63,36 @@ a {
 }
 
 .agent-status-running {
-  background-image: linear-gradient(
-    90deg,
-    #22d3ee 0%,
-    #14b8a6 40%,
-    #10b981 75%,
-    #22d3ee 100%
-  );
-  background-size: 220% 100%;
-  animation: agent-border-flow 2.6s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  padding: 1.5px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 8px 18px rgba(41, 121, 255, 0.12);
 }
 
-@keyframes agent-border-flow {
+.agent-status-running::before {
+  content: "";
+  position: absolute;
+  inset: -120%;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 260deg,
+    #8ab4f8 300deg,
+    #7cc7ff 328deg,
+    #9be7d8 350deg,
+    transparent 360deg
+  );
+  animation: agent-border-spin 1.6s linear infinite;
+}
+
+@keyframes agent-border-spin {
   0% {
-    background-position: 0% 50%;
+    transform: rotate(0deg);
   }
   100% {
-    background-position: 100% 50%;
+    transform: rotate(360deg);
   }
 }
