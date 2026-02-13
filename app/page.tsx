@@ -453,13 +453,13 @@ export default function Home() {
             </h1>
           </div>
           {agent.running ? (
-            <div className="agent-status-running px-4 py-2 transition-all duration-300">
+            <div className="agent-status-running min-w-[150px] px-4 py-2 text-center">
               <div className="agent-status-inner text-xs font-semibold text-slate-700">
                 {statusLabel}
               </div>
             </div>
           ) : (
-            <div className="agent-status-idle px-4 py-2 text-xs font-semibold text-slate-700 transition-all duration-300">
+            <div className="agent-status-idle min-w-[150px] px-4 py-2 text-center text-xs font-semibold text-slate-700">
               {statusLabel}
             </div>
           )}

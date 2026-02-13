@@ -69,15 +69,13 @@ a {
   border-radius: 9999px;
   background: #f8fbff;
   box-shadow: none;
+  contain: paint;
 }
 
 .agent-status-running::before {
   content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  aspect-ratio: 1;
+  inset: -80%;
   background: conic-gradient(
     from 90deg,
     transparent 0deg,
@@ -87,7 +85,10 @@ a {
     #86efac 352deg,
     transparent 360deg
   );
-  transform: translate(-50%, -50%) rotate(0turn);
+  transform: rotate(0turn);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  backface-visibility: hidden;
   animation: agent-border-spin 2s linear infinite;
 }
 
@@ -115,9 +116,9 @@ a {
 
 @keyframes agent-border-spin {
   from {
-    transform: translate(-50%, -50%) rotate(0turn);
+    transform: rotate(0turn);
   }
   to {
-    transform: translate(-50%, -50%) rotate(1turn);
+    transform: rotate(1turn);
   }
 }
