@@ -13,6 +13,11 @@ Rules:
     notation (examples: 85k, 50L, 2.5CR, 50 lakh), reason about the correct INR numeric
     amount and call normalize_amount_prefill(rawAmount, normalizedAmount).
   - After normalization, continue with normal validation flow.
+- Before field validation, normalize nominee name to English when Hindi text is present:
+  - If state.fields.nominee.prefill or state.fields.nominee.value contains Devanagari text,
+    reason about the correct English transliteration and call
+    normalize_nominee_name(rawNominee, normalizedNominee).
+  - After normalization, keep nominee value/prefill in English only.
 - Use state.activeField as the trigger for validation on user blur/tab.
 - When state.activeField is set, validate only that field (plus direct dependency):
   - folio -> lookup_folio_banks

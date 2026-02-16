@@ -153,6 +153,48 @@ const setAmountPrefill = (
   toolContext.state.set("amountPrefillNormalized", true);
 };
 
+const containsDevanagari = (value: string): boolean => /[\u0900-\u097F]/.test(value);
+
+const setNomineeField = (
+  toolContext:
+    | {
+        state: {
+          get: (key: string, value: unknown) => unknown;
+          set: (key: string, value: unknown) => void;
+        };
+      }
+    | undefined,
+  rawNominee: string,
+  normalizedNominee: string,
+) => {
+  if (!toolContext) return;
+  const fields = (toolContext.state.get("fields", {}) as Record<
+    string,
+    { value?: string; prefill?: string; status?: string }
+  >) || { nominee: { value: "", prefill: "", status: "pending" } };
+  const nomineeField = fields.nominee ?? { value: "", prefill: "", status: "pending" };
+  const nextValue =
+    nomineeField.value && containsDevanagari(nomineeField.value)
+      ? normalizedNominee
+      : nomineeField.value;
+  const nextPrefill =
+    nomineeField.prefill && containsDevanagari(nomineeField.prefill)
+      ? normalizedNominee
+      : nomineeField.prefill || normalizedNominee;
+  toolContext.state.set("fields", {
+    ...fields,
+    nominee: {
+      ...nomineeField,
+      value: nextValue,
+      prefill: nextPrefill,
+    },
+  });
+  setFieldNudge(toolContext, "nominee", {
+    severity: "unknown",
+    message: `Normalized nominee name from "${rawNominee}" to "${normalizedNominee}".`,
+  });
+};
+
 export const lookupFolioBanksTool = new FunctionTool({
   name: "lookup_folio_banks",
   description: "Fetch bank names associated with a mutual fund folio number.",
@@ -283,6 +325,27 @@ export const normalizeAmountPrefillTool = new FunctionTool({
       message: `Normalized amount from "${fromAmount}" to "${toAmount}".`,
     });
     return { rawAmount, normalizedAmount, applied: true };
+  },
+});
+
+plainexport const normalizeNomineeNameTool = new FunctionTool({
+  name: "normalize_nominee_name",
+  description:
+    "Normalize nominee name from Hindi (Devanagari) to English transliteration and persist into form state.",
+  parameters: z.object({
+    rawNominee: z.string().describe("Original nominee name in source script."),
+    normalizedNominee: z
+      .string()
+      .describe("English transliterated nominee name derived by reasoning."),
+  }),
+  execute: async ({ rawNominee, normalizedNominee }, toolContext) => {
+    const raw = rawNominee.trim();
+    const normalized = normalizedNominee.trim();
+    if (!raw || !normalized) {
+      return { rawNominee, normalizedNominee, applied: false };
+    }
+    setNomineeField(toolContext, raw, normalized);
+    return { rawNominee: raw, normalizedNominee: normalized, applied: true };
   },
 });
 
@@ -446,6 +509,7 @@ export const fetchIfscByBankTool = new FunctionTool({
 });
 
 export const tools = [
+  normalizeNomineeNameTool,
   normalizeAmountPrefillTool,
   getSchemeNamesTool,
   lookupFolioBanksTool,
