@@ -15,6 +15,7 @@ import {
   isValidFolio,
   isValidIFSC,
   isValidPAN,
+  parseRedemptionAmountInput,
 } from "@/lib/validation";
 import type { FieldNudge, NudgeSeverity } from "@/lib/types";
 
@@ -186,14 +187,16 @@ export const validateAmountTool = new FunctionTool({
   description: "Check if redemption amount requires additional review.",
   parameters: z.object({
     amount: z
-      .preprocess((value) => Number(value), z.number())
-      .describe("Redemption amount"),
+      .union([z.string(), z.number()])
+      .describe("Redemption amount. Supports shorthand like 50L, 2.5CR, 750K."),
   }),
   execute: async ({ amount }, toolContext) => {
-    if (!Number.isFinite(amount)) {
+    const parsedAmount = parseRedemptionAmountInput(amount);
+    if (parsedAmount === null) {
       mergeValidation(toolContext, "amount", {
         valid: false,
-        message: "Amount is not a valid number.",
+        message:
+          "Amount format is invalid. Use values like 50000, 50L, 2.5CR, or 750K.",
       });
       setFieldNudge(toolContext, "amount", {
         severity: "unknown",
@@ -201,7 +204,7 @@ export const validateAmountTool = new FunctionTool({
       });
       return { amount, requiresReview: false };
     }
-    const requiresReview = isHighValueAmount(amount);
+    const requiresReview = isHighValueAmount(parsedAmount);
     mergeValidation(toolContext, "amount", {
       valid: !requiresReview,
       message: requiresReview
@@ -221,7 +224,7 @@ export const validateAmountTool = new FunctionTool({
         "High-value redemption detected. Confirm authorization before submission.",
       ]);
     }
-    return { amount, requiresReview };
+    return { amount: parsedAmount, requiresReview };
   },
 });
 
