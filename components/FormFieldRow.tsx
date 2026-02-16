@@ -95,22 +95,32 @@ export function FormFieldRow({
             <p className="mt-1 text-xs text-slate-500">Awaiting check</p>
           )}
         </div>
-        {nudge ? (
-          nudge.suggestedValue && onApplySuggestion ? (
-            <button
-              type="button"
-              onClick={() => onApplySuggestion(nudge.suggestedValue ?? "")}
-              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition hover:brightness-95 ${nudgeStyle}`}
-              title="Apply suggested value"
+        <div className="flex max-w-[60%] flex-wrap justify-end gap-2">
+          {state.prefill ? (
+            <span
+              className="max-w-full truncate rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700"
+              title={`Provided value: ${state.prefill}`}
             >
-              {nudge.message}
-            </button>
-          ) : (
-            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${nudgeStyle}`}>
-              {nudge.message}
+              {`Provided: ${state.prefill}`}
             </span>
-          )
-        ) : null}
+          ) : null}
+          {nudge ? (
+            nudge.suggestedValue && onApplySuggestion ? (
+              <button
+                type="button"
+                onClick={() => onApplySuggestion(nudge.suggestedValue ?? "")}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition hover:brightness-95 ${nudgeStyle}`}
+                title="Apply suggested value"
+              >
+                {nudge.message}
+              </button>
+            ) : (
+              <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${nudgeStyle}`}>
+                {nudge.message}
+              </span>
+            )
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-3 flex flex-col gap-3">

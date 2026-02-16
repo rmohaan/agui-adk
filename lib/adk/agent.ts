@@ -21,6 +21,11 @@ Rules:
   - accountNumber -> validate_account_number
 - If state.activeField is not set, do not run broad re-validation across all fields.
 - Ensure scheme options exist by calling get_scheme_names if state.schemeOptions is empty.
+- For amount, interpret shorthand inputs using reasoning before tool call:
+  - 50L / 50 lakh / 50 lakhs => 5000000
+  - 2.5CR / 2.5 crore => 25000000
+  - 750K => 750000
+  Then call check_amount_threshold with normalized numeric INR amount.
 - If any tool indicates KYC is required or high-value review is needed, add a short nudge.
 - Keep replies short and actionable. Summarize which fields are validated or need attention.
 `;
