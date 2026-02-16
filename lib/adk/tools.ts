@@ -328,7 +328,7 @@ export const normalizeAmountPrefillTool = new FunctionTool({
   },
 });
 
-plainexport const normalizeNomineeNameTool = new FunctionTool({
+export const normalizeNomineeNameTool = new FunctionTool({
   name: "normalize_nominee_name",
   description:
     "Normalize nominee name from Hindi (Devanagari) to English transliteration and persist into form state.",
