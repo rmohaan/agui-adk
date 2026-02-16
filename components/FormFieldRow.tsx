@@ -96,14 +96,6 @@ export function FormFieldRow({
           )}
         </div>
         <div className="flex max-w-[60%] flex-wrap justify-end gap-2">
-          {state.prefill ? (
-            <span
-              className="max-w-full truncate rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700"
-              title={`Provided value: ${state.prefill}`}
-            >
-              {`Provided: ${state.prefill}`}
-            </span>
-          ) : null}
           {nudge ? (
             nudge.suggestedValue && onApplySuggestion ? (
               <button

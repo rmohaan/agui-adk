@@ -45,6 +45,7 @@ export type FieldNudge = {
 export type AgentState = {
   formId?: string;
   activeField?: FormFieldKey;
+  amountPrefillNormalized?: boolean;
   fields: Record<FormFieldKey, AgentFieldState>;
   validation?: Partial<Record<FormFieldKey, ValidationResult>>;
   bankOptions?: string[];

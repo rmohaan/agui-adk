@@ -17,6 +17,7 @@ const PdfViewer = dynamic(
 
 const emptyState: AgentState = {
   fields: {} as AgentState["fields"],
+  amountPrefillNormalized: false,
   validation: {},
   nudges: [],
   fieldNudges: {},
@@ -148,6 +149,7 @@ export default function Home() {
       agentRef.current.setState((prev) => ({
         ...prev,
         formId: data.id,
+        amountPrefillNormalized: false,
         activeField: undefined,
         fields: nextFields,
         validation: {},
@@ -182,7 +184,8 @@ export default function Home() {
     if (ghostIndex < 0 || ghostIndex >= FORM_FIELDS.length) return;
     const key = FORM_FIELDS[ghostIndex]?.key;
     if (!key) return;
-    const prefill = selectedForm.fields[key] ?? "";
+    const prefill =
+      agent.state?.fields?.[key]?.prefill ?? selectedForm.fields[key] ?? "";
     if (!prefill) return;
     if (typingTimersRef.current[key]) return;
 
@@ -200,7 +203,7 @@ export default function Home() {
     }, 100);
 
     typingTimersRef.current[key] = timer;
-  }, [ghostIndex, selectedForm]);
+  }, [ghostIndex, selectedForm, agent.state?.fields]);
 
   const validation = agent.state?.validation ?? {};
   const nudges = agent.state?.nudges ?? [];

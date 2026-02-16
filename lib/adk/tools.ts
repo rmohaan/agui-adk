@@ -121,6 +121,33 @@ const setIfscSuggestions = (
   toolContext.state.set("ifscSuggestions", suggestions);
 };
 
+const setAmountPrefill = (
+  toolContext:
+    | {
+        state: {
+          get: (key: string, value: unknown) => unknown;
+          set: (key: string, value: unknown) => void;
+        };
+      }
+    | undefined,
+  normalizedAmount: number,
+) => {
+  if (!toolContext) return;
+  const fields = (toolContext.state.get("fields", {}) as Record<
+    string,
+    { value?: string; prefill?: string; status?: string }
+  >) || { amount: { value: "", prefill: "", status: "pending" } };
+  const amountField = fields.amount ?? { value: "", prefill: "", status: "pending" };
+  toolContext.state.set("fields", {
+    ...fields,
+    amount: {
+      ...amountField,
+      prefill: String(normalizedAmount),
+    },
+  });
+  toolContext.state.set("amountPrefillNormalized", true);
+};
+
 export const lookupFolioBanksTool = new FunctionTool({
   name: "lookup_folio_banks",
   description: "Fetch bank names associated with a mutual fund folio number.",
@@ -224,6 +251,31 @@ export const validateAmountTool = new FunctionTool({
       ]);
     }
     return { amount, requiresReview };
+  },
+});
+
+export const normalizeAmountPrefillTool = new FunctionTool({
+  name: "normalize_amount_prefill",
+  description:
+    "Persist a reasoning-derived normalized INR amount into state.fields.amount.prefill.",
+  parameters: z.object({
+    rawAmount: z
+      .string()
+      .describe("Original shorthand amount text, for traceability."),
+    normalizedAmount: z
+      .number()
+      .describe("Normalized INR numeric amount derived by reasoning."),
+  }),
+  execute: async ({ rawAmount, normalizedAmount }, toolContext) => {
+    if (!Number.isFinite(normalizedAmount)) {
+      return { rawAmount, normalizedAmount, applied: false };
+    }
+    setAmountPrefill(toolContext, normalizedAmount);
+    setFieldNudge(toolContext, "amount", {
+      severity: "unknown",
+      message: `Normalized amount to ${normalizedAmount}.`,
+    });
+    return { rawAmount, normalizedAmount, applied: true };
   },
 });
 
@@ -387,6 +439,7 @@ export const fetchIfscByBankTool = new FunctionTool({
 });
 
 export const tools = [
+  normalizeAmountPrefillTool,
   getSchemeNamesTool,
   lookupFolioBanksTool,
   validateBankTool,
