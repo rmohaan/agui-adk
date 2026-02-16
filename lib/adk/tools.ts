@@ -121,6 +121,11 @@ const setIfscSuggestions = (
   toolContext.state.set("ifscSuggestions", suggestions);
 };
 
+const formatInrNumber = (amount: number): string =>
+  new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 2,
+  }).format(amount);
+
 const setAmountPrefill = (
   toolContext:
     | {
@@ -271,9 +276,11 @@ export const normalizeAmountPrefillTool = new FunctionTool({
       return { rawAmount, normalizedAmount, applied: false };
     }
     setAmountPrefill(toolContext, normalizedAmount);
+    const fromAmount = rawAmount.trim();
+    const toAmount = formatInrNumber(normalizedAmount);
     setFieldNudge(toolContext, "amount", {
       severity: "unknown",
-      message: `Normalized amount to ${normalizedAmount}.`,
+      message: `Normalized amount from "${fromAmount}" to "${toAmount}".`,
     });
     return { rawAmount, normalizedAmount, applied: true };
   },
