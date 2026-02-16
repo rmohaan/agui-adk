@@ -57,6 +57,7 @@ export default function Home() {
   const typingTimersRef = useRef<
     Partial<Record<FormFieldKey, number>>
   >({});
+  const typedGhostSourceRef = useRef<Partial<Record<FormFieldKey, string>>>({});
 
   useEffect(() => {
     runningRef.current = agent.running;
@@ -137,6 +138,7 @@ export default function Home() {
         }
       });
       typingTimersRef.current = {};
+      typedGhostSourceRef.current = {};
       const nextFields = FORM_FIELDS.reduce((acc, field) => {
         acc[field.key] = {
           value: "",
@@ -187,9 +189,27 @@ export default function Home() {
     const prefill =
       agent.state?.fields?.[key]?.prefill ?? selectedForm.fields[key] ?? "";
     if (!prefill) return;
-    if (typingTimersRef.current[key]) return;
+    const currentSource = typedGhostSourceRef.current[key];
+    const currentGhost = ghostText[key] ?? "";
+    const sourceChanged = currentSource !== prefill;
 
-    let cursor = 0;
+    if (!sourceChanged && currentGhost === prefill) {
+      return;
+    }
+
+    const existingTimer = typingTimersRef.current[key];
+    if (existingTimer) {
+      window.clearInterval(existingTimer);
+      typingTimersRef.current[key] = undefined;
+    }
+    typedGhostSourceRef.current[key] = prefill;
+    if (sourceChanged) {
+      window.setTimeout(() => {
+        setGhostText((prev) => ({ ...prev, [key]: "" }));
+      }, 0);
+    }
+
+    let cursor = sourceChanged ? 0 : currentGhost.length;
     const timer = window.setInterval(() => {
       cursor += 1;
       setGhostText((prev) => ({
@@ -203,7 +223,7 @@ export default function Home() {
     }, 100);
 
     typingTimersRef.current[key] = timer;
-  }, [ghostIndex, selectedForm, agent.state?.fields]);
+  }, [ghostIndex, selectedForm, agent.state?.fields, ghostText]);
 
   const validation = agent.state?.validation ?? {};
   const nudges = agent.state?.nudges ?? [];
@@ -226,6 +246,42 @@ export default function Home() {
       return next;
     });
   };
+
+  useEffect(() => {
+    if (!agent.state?.amountPrefillNormalized) return;
+    const amountField = agent.state?.fields?.amount;
+    if (!amountField) return;
+    if (amountField.status !== "pending") return;
+    if ((amountField.value ?? "").trim().length > 0) return;
+    const normalizedPrefill = (amountField.prefill ?? "").trim();
+    if (!normalizedPrefill) return;
+
+    const updateTimer = window.setTimeout(() => {
+      clearGhostForField("amount");
+      agent.setState((prev) => {
+        const safePrev = prev ?? emptyState;
+        const field = safePrev.fields.amount;
+        if (!field) return safePrev;
+        if (field.status !== "pending") return safePrev;
+        if ((field.value ?? "").trim().length > 0) return safePrev;
+        const nextValue = (field.prefill ?? "").trim();
+        if (!nextValue) return safePrev;
+        return {
+          ...safePrev,
+          fields: {
+            ...safePrev.fields,
+            amount: {
+              ...field,
+              value: nextValue,
+            },
+          },
+        };
+      });
+    }, 0);
+    return () => {
+      window.clearTimeout(updateTimer);
+    };
+  }, [agent, agent.state?.amountPrefillNormalized, agent.state?.fields?.amount]);
 
   const clearFieldDerivedState = (
     prev: AgentState,
